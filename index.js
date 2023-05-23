@@ -7,7 +7,7 @@ function start() {
 }
 
 //timer
-var totalSeconds = 10;
+var totalSeconds = 100;
 var interval;
 
 function startTimer() {
@@ -22,7 +22,7 @@ function startTimer() {
     updateTimer(seconds);
 
     // Stop the timer when it reaches 100 seconds
-    if (seconds >= 10) {
+    if (seconds >= 100) {
       clearInterval(interval);
 
       var contentDiv = document.getElementById("game_grid");
@@ -47,11 +47,14 @@ document.addEventListener("DOMContentLoaded", function () {
   const mediumButton = document.getElementById("medium");
   const hardButton = document.getElementById("hard");
 
+  easyButton.classList.add("active");
+
   easyButton.addEventListener("click", function () {
     // Add 'active' class to the clicked button
     easyButton.classList.add("active");
     mediumButton.classList.remove("active");
     hardButton.classList.remove("active");
+    console.log("easy");
   });
 
   mediumButton.addEventListener("click", function () {
@@ -59,6 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
     easyButton.classList.remove("active");
     mediumButton.classList.add("active");
     hardButton.classList.remove("active");
+    console.log("medium");
   });
 
   hardButton.addEventListener("click", function () {
@@ -66,6 +70,7 @@ document.addEventListener("DOMContentLoaded", function () {
     easyButton.classList.remove("active");
     mediumButton.classList.remove("active");
     hardButton.classList.add("active"); 
+    console.log("hard");
   });
 });
 
@@ -98,8 +103,9 @@ const setup = async () => {
 
   let pairCount = 0;
   let pairsLoad = 6;
-  const gameGrid = document.getElementById("game_grid");
 
+
+  const gameGrid = document.getElementById("game_grid");
 
   //load the pokemon images into the divs
   pokemons.slice(0, pairsLoad / 2).map(async (pokemon, index) => {
