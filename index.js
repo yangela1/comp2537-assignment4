@@ -1,12 +1,11 @@
-
-//start button
+// Start button
 function start() {
-  document.getElementById("content").style.display = "block"
+  document.getElementById("content").style.display = "block";
   startTimer();
   document.getElementById("start").style.display = "none";
 }
 
-//timer
+// Timer
 var totalSeconds = 100;
 var interval;
 
@@ -26,71 +25,69 @@ function startTimer() {
       clearInterval(interval);
 
       var contentDiv = document.getElementById("game_grid");
-      contentDiv.innerHTML = "Time's up! <a href='javascript:resetPage()'>Try again</a>";
+      contentDiv.innerHTML =
+        "Time's up! <a href='javascript:resetPage()'>Try again</a>";
     }
-  }, 1000)
+  }, 1000);
 }
 
-//reset button    
+// Reset button
 function resetPage() {
   document.getElementById("content").style.display = "none";
   location.reload();
 }
-//update timer in div
+
+// Update timer in div
 function updateTimer(seconds) {
-  document.getElementById("timer").innerHTML = "You got " + totalSeconds + " seconds. " + seconds + " seconds have passed";
+  document.getElementById(
+    "timer"
+  ).innerHTML = `You got ${totalSeconds} seconds. ${seconds} seconds have passed`;
 }
 
-//difficulty buttons event listener
+// Difficulty buttons event listener
 document.addEventListener("DOMContentLoaded", function () {
   const easyButton = document.getElementById("easy");
   const mediumButton = document.getElementById("medium");
   const hardButton = document.getElementById("hard");
 
-  easyButton.classList.add("active");
-
   easyButton.addEventListener("click", function () {
-    // Add 'active' class to the clicked button
     easyButton.classList.add("active");
     mediumButton.classList.remove("active");
     hardButton.classList.remove("active");
-    console.log("easy");
+    startGame(3, 6); 
   });
 
   mediumButton.addEventListener("click", function () {
-    // Add 'active' class to the clicked button
     easyButton.classList.remove("active");
     mediumButton.classList.add("active");
     hardButton.classList.remove("active");
-    console.log("medium");
+    startGame(6, 12); 
   });
 
   hardButton.addEventListener("click", function () {
-    // Add 'active' class to the clicked button
     easyButton.classList.remove("active");
     mediumButton.classList.remove("active");
-    hardButton.classList.add("active"); 
-    console.log("hard");
+    hardButton.classList.add("active");
+    startGame(12, 24); 
   });
 });
 
-
-//setup the page------------------------------------------------------------------------------------------------------------------------------------------------------------------->
-const setup = async () => {
-  let response = await axios.get("https://pokeapi.co/api/v2/pokemon?offset=0&limit=810");
+// Setup the page
+const setup = async (totalPairs, pairsLoad) => {
+  let response = await axios.get(
+    "https://pokeapi.co/api/v2/pokemon?offset=0&limit=810"
+  );
   pokemons = response.data.results;
 
-  //shuffle
+  // Shuffle
   shuffle(pokemons);
 
   let firstCard = undefined;
   let secondCard = undefined;
   let clickable = true;
-  let totalPairs = 3;
   let pairsLeft = totalPairs;
   let pairsMatched = 0;
   let clickCount = 0;
-
 
   function updateDiv() {
     $("#totalPairs").text(`Total number of pairs: ${totalPairs}`);
@@ -102,12 +99,45 @@ const setup = async () => {
   updateDiv();
 
   let pairCount = 0;
-  let pairsLoad = 6;
 
+  // const gameGrid = document.getElementById("game_grid");
+  var gridSize = {
+    easy: { totalPairs: 3, width: "200px", height: "100px" },
+    medium: { totalPairs: 6, width: "1500px", height: "1500px" },
+    hard: { totalPairs: 12, width: "500px", height: "650px" },
+  };
+  
+  // Get the gameGrid element
+  var gameGrid = document.getElementById("game_grid");
+  
+  // Get the selected difficulty level
+  var difficulty = "hard"; // Replace with the actual difficulty level selection logic
+  
+  // Adjust grid dimensions based on difficulty level
+  switch (difficulty) {
+    case "easy":
+      gameGrid.style.width = gridSize.easy.width;
+      gameGrid.style.height = gridSize.easy.height;
+      break;
+    case "medium":
+      gameGrid.style.width = gridSize.normal.width;
+      gameGrid.style.height = gridSize.normal.height;
+      break;
+    case "hard":
+      gameGrid.style.width = gridSize.hard.width;
+      gameGrid.style.height = gridSize.hard.height;
+      break;
+    default:
+      // Default size if difficulty level is not found
+      gameGrid.style.width = "1200px";
+      gameGrid.style.height = "1200px";
+      break;
+  }
+  
 
-  const gameGrid = document.getElementById("game_grid");
-
-  //load the pokemon images into the divs
+  
+  console.log("number of cards to load " + pairsLoad);
+  // Load the pokemon images into the divs
   pokemons.slice(0, pairsLoad / 2).map(async (pokemon, index) => {
     const pokemonName = pokemon.name;
 
@@ -129,97 +159,104 @@ const setup = async () => {
       const back = document.createElement("img");
       back.classList.add("back_face");
       back.src = "back.webp";
+    
       card.appendChild(back);
 
       // Append the card to the game grid
       gameGrid.appendChild(card);
-
     }
-    //loading the image url function
+
+    // Loading the image URL function
     async function loadImg(url, image) {
       try {
         let response = await axios.get(url);
-        let artworkURL = response.data.sprites.other["official-artwork"].front_default;
+        let artworkURL =
+          response.data.sprites.other["official-artwork"].front_default;
         image.src = artworkURL;
       } catch (error) {
-        console.log("cannot load poke image", error);
+        console.log("Cannot load poke image", error);
       }
     }
 
-    //flip the cards
-    $(".card").on(("click"), function () {
+    // Flip the cards
+    $(".card").on("click", function () {
       if (!clickable || $(this).hasClass("flip")) {
         return;
       }
 
-      //increment click count
+      // Increment click count
       clickCount++;
       updateDiv();
 
-
       $(this).toggleClass("flip");
 
-      if (!firstCard)
-        firstCard = $(this).find(".front_face")[0]
+      if (!firstCard) firstCard = $(this).find(".front_face")[0];
       else {
-        secondCard = $(this).find(".front_face")[0]
+        secondCard = $(this).find(".front_face")[0];
         console.log(firstCard, secondCard);
 
-        if (firstCard.getAttribute("data-pokemon") === secondCard.getAttribute("data-pokemon")) {
-          console.log("match")
+        if (
+          firstCard.getAttribute("data-pokemon") ===
+          secondCard.getAttribute("data-pokemon")
+        ) {
+          console.log("match");
           pairCount++;
-          //make the matched pair unclickable 
+          // Make the matched pair unclickable
           $(firstCard).parent().off("click");
           $(secondCard).parent().off("click");
 
-          //reset after the match
+          // Reset after the match
           firstCard = undefined;
           secondCard = undefined;
 
-          //checks if the game is finished
+          // Check if the game is finished
           if (pairCount === pairsLoad / 2) {
             displayWinningMessage();
           }
 
-          console.log("pair count " + pairCount)
-          console.log("pairsload " + pairsLoad / 2)
+          console.log("pair count " + pairCount);
+          console.log("pairsload " + pairsLoad / 2);
 
-          //decrement pairs left by 1 and increment pairs matched by 1
+          // Decrement pairs left by 1 and increment pairs matched by 1
           pairsLeft -= 1;
           pairsMatched += 1;
           updateDiv();
-
         } else {
-          console.log("no match")
-          //make cards unclickable during comparison
+          console.log("no match");
+          // Make cards unclickable during comparison
           clickable = false;
 
           setTimeout(() => {
             $(firstCard).parent().toggleClass("flip");
             $(secondCard).parent().toggleClass("flip");
-            //reset after timeout
+            // Reset after timeout
             firstCard = undefined;
             secondCard = undefined;
             clickable = true;
-          }, 1000)
+          }, 1000);
         }
       }
     });
-
   });
 
-
-  //shuffle the pokemons so its different each time
+  // Shuffle the pokemons so it's different each time
   function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
     }
   }
+};
 
+function startGame(totalPairs, pairsLoad) {
+  const gameGrid = document.getElementById("game_grid");
+  gameGrid.innerHTML = ""; 
+  setup(totalPairs, pairsLoad);
 }
 
-$(document).ready(setup)
+$(document).ready(function () {
+  startGame(3, 6); 
+});
 
 function displayWinningMessage() {
   clearInterval(interval);

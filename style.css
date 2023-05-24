@@ -5,20 +5,19 @@ body {
 #game_grid {
   border: 2px tomato solid;
   border-radius: 10%;
-  width: 600px;
-  height: 400px;
   margin: auto;
   padding: 2%;
   display: flex;
   flex-wrap: wrap;
+  height: auto;
 }
 
 
 .card {
-  width: 33.3%;
+  width: 100px;
+  height: 100px;
   position: relative;
-  transition: transform 1s;
-  /*this makes the rotation in 3d by adding perspective */
+  transition: transform 0.5s;
   perspective: 1000px;
   transform-style: preserve-3d;
   border: none !important;
